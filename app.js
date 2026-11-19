@@ -10,6 +10,8 @@ const seedProducts = [
 ];
 
 const storageKeys = { products: "techyy.products.v1", cart: "techyy.cart.v1", user: "techyy.user.v1", qr: "techyy.qr.v1", orders: "techyy.orders.v1" };
+const supabaseUrl = "https://efcxysupvztqozntsxlf.supabase.co";
+const supabasePublishableKey = "sb_publishable_c8PiutAzHHnuHkMf6UZM8g_IdhA_5ZQ";
 const currency = new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 });
 const getStored = (key, fallback) => {
   const raw = localStorage.getItem(key);
@@ -17,9 +19,12 @@ const getStored = (key, fallback) => {
 };
 let products = getStored(storageKeys.products, seedProducts);
 let cart = getStored(storageKeys.cart, []);
-let user = getStored(storageKeys.user, null);
+let user = null;
 let orders = getStored(storageKeys.orders, []);
 let upiQr = getStored(storageKeys.qr, "");
+let authClient = null;
+let authReady = false;
+let authError = "";
 let activeCategory = "All";
 let activeMode = "buy";
 let searchTerm = "";
@@ -187,7 +192,8 @@ function renderCart() {
 function renderAuth() {
   drawerHeader("WELCOME TO TECHYY", user ? "Your account" : "Good to have you.");
   if (user) {
-    drawerContent.innerHTML = `<div class="admin-notice">You're signed in on this device as <strong>${escapeHTML(user.name)}</strong> (${escapeHTML(user.email)}).</div><button class="button button-dark drawer-primary" type="button" data-sign-out>Sign out</button><p class="form-footnote">Account details in this prototype stay in this browser; no account is created on a server.</p>`;
+    const name = user.user_metadata?.name || user.email?.split("@")[0] || "Techyy customer";
+    drawerContent.innerHTML = `<div class="admin-notice">You're signed in as <strong>${escapeHTML(name)}</strong> (${escapeHTML(user.email || "")}).</div><button class="button button-dark drawer-primary" type="button" data-sign-out>Sign out</button><p class="form-footnote">Your account is managed securely by Supabase Auth.</p>`;
     return;
   }
   drawerContent.innerHTML = `<div class="form-tabs"><button type="button" class="form-tab${authMode === "login" ? " active" : ""}" data-auth-mode="login">Sign in</button><button type="button" class="form-tab${authMode === "signup" ? " active" : ""}" data-auth-mode="signup">Create account</button></div>
@@ -195,9 +201,9 @@ function renderAuth() {
       ${authMode === "signup" ? `<label class="form-field">Your name<input name="name" autocomplete="name" placeholder="e.g. Alex Morgan" required></label>` : ""}
       <label class="form-field">Email address<input name="email" type="email" autocomplete="email" placeholder="you@example.com" required></label>
       <label class="form-field">Password<input name="password" type="password" autocomplete="${authMode === "signup" ? "new-password" : "current-password"}" minlength="6" placeholder="At least 6 characters" required></label>
-      <button class="button button-dark drawer-primary" type="submit">${authMode === "signup" ? "Create your account" : "Sign in"} <span>→</span></button>
+      <button class="button button-dark drawer-primary" type="submit" ${authReady && authClient ? "" : "disabled"}>${authMode === "signup" ? "Create your account" : "Sign in"} <span>→</span></button>
     </form>
-    <p class="form-footnote">Prototype only: these screens save a local profile in your browser and do not provide real authentication or account security.</p>`;
+    <p class="form-footnote auth-feedback" id="auth-feedback" aria-live="polite">${escapeHTML(authError || (authReady ? "Sign in or create an account with your email." : "Connecting to secure sign-in…"))}</p>`;
 }
 
 function renderAdmin() {
@@ -231,7 +237,7 @@ function renderCheckout() {
   drawerContent.innerHTML = `<div class="checkout-summary">${summary}<div class="checkout-total"><span>Estimated total</span><strong>${money(cartTotal())}</strong></div></div>
     <p class="cart-caption">This is a demo checkout. No payment is taken and no delivery or rental booking is placed.</p>
     <form class="form-stack" id="checkout-form">
-      <label class="form-field">Full name<input name="name" autocomplete="name" value="${escapeHTML(user?.name || "")}" required></label>
+      <label class="form-field">Full name<input name="name" autocomplete="name" value="${escapeHTML(user?.user_metadata?.name || "")}" required></label>
       <label class="form-field">Email address<input name="email" type="email" autocomplete="email" value="${escapeHTML(user?.email || "")}" required></label>
       <label class="form-field">Delivery address<textarea name="address" autocomplete="street-address" placeholder="Your delivery address" required></textarea></label>
       <button class="button button-dark drawer-primary" type="submit">Review UPI payment <span>→</span></button>
@@ -244,15 +250,74 @@ function setAuthMode(mode) {
   renderAuth();
 }
 
-function submitAuth(form) {
+function showAuthMessage(message, isError = false) {
+  const feedback = document.querySelector("#auth-feedback");
+  if (!feedback) return;
+  feedback.textContent = message;
+  feedback.classList.toggle("error", isError);
+}
+
+async function submitAuth(form) {
+  if (!authClient || !authReady) {
+    showAuthMessage(authError || "Sign-in is still connecting. Please try again.", true);
+    return;
+  }
   const data = new FormData(form);
   const email = String(data.get("email")).trim();
-  const name = authMode === "signup" ? String(data.get("name")).trim() : email.split("@")[0];
-  if (!email || !name) return notify("Please enter your name and email.");
-  user = { name, email };
-  save(storageKeys.user, user);
-  notify(authMode === "signup" ? "Your local demo profile is ready." : "Welcome back.");
-  renderAuth();
+  const password = String(data.get("password"));
+  const name = authMode === "signup" ? String(data.get("name")).trim() : "";
+  const submitButton = form.querySelector('button[type="submit"]');
+  submitButton.disabled = true;
+  showAuthMessage(authMode === "signup" ? "Creating your account…" : "Signing you in…");
+  try {
+    const result = authMode === "signup"
+      ? await authClient.auth.signUp({ email, password, options: { data: { name }, emailRedirectTo: window.location.origin } })
+      : await authClient.auth.signInWithPassword({ email, password });
+    if (result.error) throw result.error;
+    if (authMode === "signup" && !result.data.session) {
+      showAuthMessage("Account created. Check your email for a confirmation link, then sign in.");
+      return;
+    }
+    user = result.data.user;
+    notify(authMode === "signup" ? "Your Techyy account is ready." : "Welcome back.");
+    renderAuth();
+  } catch (error) {
+    showAuthMessage(error.message || "Authentication failed. Please try again.", true);
+  } finally {
+    if (submitButton.isConnected) submitButton.disabled = false;
+  }
+}
+
+async function signOut() {
+  if (!authClient) return notify("Sign-out is unavailable because Supabase did not connect.");
+  try {
+    const { error } = await authClient.auth.signOut();
+    if (error) return notify(`Could not sign out: ${error.message}`);
+    user = null;
+    renderAuth();
+    notify("Signed out.");
+  } catch (error) {
+    notify(`Could not sign out: ${error.message}`);
+  }
+}
+
+async function initializeAuth() {
+  try {
+    if (!window.supabase?.createClient) throw new Error("The Supabase Auth library did not load. Check your connection and reload.");
+    authClient = window.supabase.createClient(supabaseUrl, supabasePublishableKey);
+    authClient.auth.onAuthStateChange((_event, session) => {
+      user = session?.user || null;
+      if (activeDrawer === "auth" || activeDrawer === "checkout") renderDrawer();
+    });
+    const { data, error } = await authClient.auth.getSession();
+    if (error) throw error;
+    user = data.session?.user || null;
+  } catch (error) {
+    authError = `Could not connect to Supabase Auth: ${error.message}`;
+  } finally {
+    authReady = true;
+    if (activeDrawer === "auth") renderAuth();
+  }
 }
 
 function submitOrder(form) {
@@ -401,12 +466,7 @@ drawerContent.addEventListener("click", (event) => {
     renderCart();
   }
   if (checkoutButton) { activeDrawer = "checkout"; renderCheckout(); }
-  if (signOutButton) {
-    user = null;
-    localStorage.removeItem(storageKeys.user);
-    renderAuth();
-    notify("Signed out on this device.");
-  }
+  if (signOutButton) void signOut();
   if (deleteButton) removeProduct(deleteButton.dataset.deleteProduct);
   if (removeQrButton) {
     upiQr = "";
@@ -435,7 +495,7 @@ drawerContent.addEventListener("change", (event) => {
 });
 drawerContent.addEventListener("submit", (event) => {
   event.preventDefault();
-  if (event.target.id === "auth-form") submitAuth(event.target);
+  if (event.target.id === "auth-form") void submitAuth(event.target);
   if (event.target.id === "checkout-form") submitOrder(event.target);
   if (event.target.id === "product-form") addProduct(event.target);
 });
@@ -451,3 +511,4 @@ window.addEventListener("storage", (event) => {
 
 renderProducts();
 updateCartCount();
+void initializeAuth();
