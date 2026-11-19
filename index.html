@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8fa">
+  <meta name="description" content="Shop the latest tech or rent it when you need it. Discover phones, audio, computers, and more at Techyy.">
+  <title>Techyy — tech for the way you live</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="announcement"><span class="announcement-dot"></span> Your next favourite gadget is just around the corner <span class="announcement-link">Explore the collection <span aria-hidden="true">→</span></span></div>
+  <header class="site-header">
+    <a class="wordmark" href="#" aria-label="Techyy home">techyy<span>.</span></a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="#shop">Shop</a>
+      <a href="#shop" data-rent-link>Rent</a>
+      <a href="#why-techyy">Why Techyy</a>
+    </nav>
+    <label class="search-wrap">
+      <span class="sr-only">Search products</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"></circle><path d="m16 16 4.2 4.2"></path></svg>
+      <input id="search-input" type="search" placeholder="Search gadgets..." autocomplete="off">
+      <kbd>⌘ K</kbd>
+    </label>
+    <div class="header-actions">
+      <button class="icon-button account-button" id="account-button" aria-label="Sign in or create an account">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5"></circle><path d="M5 20c.5-3.5 3.2-5.5 7-5.5s6.5 2 7 5.5"></path></svg>
+      </button>
+      <button class="icon-button cart-button" id="cart-button" aria-label="Open shopping bag">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 8h14l1 12H4L5 8Z"></path><path d="M9 9V6a3 3 0 0 1 6 0v3"></path></svg>
+        <span class="cart-count" id="cart-count">0</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="eyebrow-line"></span> A smarter way to tech</div>
+        <h1 id="hero-title">Good tech.<br><span>Better choices.</span></h1>
+        <p>Buy what you love. Rent what you need. All the tech that moves you, in one place.</p>
+        <div class="hero-actions">
+          <a class="button button-dark" href="#shop">Shop the collection <span aria-hidden="true">↗</span></a>
+          <a class="text-link" href="#shop" data-rent-link>Discover rentals <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="hero-proof"><div class="avatar-stack"><span>R</span><span>A</span><span>M</span><span>+</span></div><div><strong>4.9/5</strong><span> loved by 2,000+ techies</span></div></div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-orbit orbit-one"></div><div class="hero-orbit orbit-two"></div>
+        <div class="hero-label label-top"><span class="sparkle">✳</span> Curated for you</div>
+        <img class="hero-image" src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=1100&q=85" alt="Premium over-ear headphones" fetchpriority="high">
+        <div class="hero-product-card"><div><span class="product-kicker">JUST DROPPED</span><strong>Sound that moves you.</strong></div><a href="#shop" aria-label="Explore audio products">↗</a></div>
+        <div class="hero-sticker"><span>BUY<br>OR<br>RENT</span><svg viewBox="0 0 88 88" aria-hidden="true"><path d="M8 44c0-20 16-36 36-36s36 16 36 36-16 36-36 36S8 64 8 44Z"></path><path d="M14 44c0-16.6 13.4-30 30-30s30 13.4 30 30-13.4 30-30 30-30-13.4-30-30Z"></path></svg></div>
+      </div>
+      <div class="hero-bottom-note"><span>01 — 04</span><span class="note-rule"></span><span>THE TECHYY EDIT</span></div>
+    </section>
+
+    <section class="trust-strip" aria-label="Our promises">
+      <div><span class="trust-icon">✳</span><span><strong>Only the good stuff</strong><small>Handpicked, quality checked</small></span></div>
+      <div><span class="trust-icon">↗</span><span><strong>Flex your way</strong><small>Own it or rent it</small></span></div>
+      <div><span class="trust-icon">♡</span><span><strong>Here when you need us</strong><small>Real people, real support</small></span></div>
+      <div><span class="trust-icon">⌁</span><span><strong>Easy on the planet</strong><small>Good tech, less waste</small></span></div>
+    </section>
+
+    <section class="shop-section section-shell" id="shop">
+      <div class="section-heading">
+        <div><div class="eyebrow"><span class="eyebrow-line"></span> THE GOOD STUFF</div><h2>Find your next <span>favourite.</span></h2></div>
+        <a class="text-link desktop-link" href="#shop">View all products <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="shop-toolbar">
+        <div class="category-list" id="category-list" aria-label="Filter by category"></div>
+        <div class="shop-controls">
+          <div class="mode-switch" role="group" aria-label="Purchase or rental mode">
+            <button type="button" class="mode-option active" data-mode="buy">Buy</button>
+            <button type="button" class="mode-option" data-mode="rent">Rent</button>
+          </div>
+          <label class="sort-select"><span class="sr-only">Sort products</span><select id="sort-select"><option value="featured">Featured</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option></select></label>
+        </div>
+      </div>
+      <div class="active-mode-note" id="active-mode-note"><span class="mode-note-dot"></span><span>Good tech, yours to keep.</span></div>
+      <div class="product-grid" id="product-grid" aria-live="polite"></div>
+      <div class="empty-state hidden" id="empty-state"><span>⌕</span><h3>No gadgets found</h3><p>Try a different search or category.</p><button class="text-link" id="clear-filters">Clear filters <span aria-hidden="true">→</span></button></div>
+    </section>
+
+    <section class="rental-banner">
+      <div class="rental-copy"><div class="eyebrow"><span class="eyebrow-line"></span> GOOD THINGS, WITHOUT THE COMMITMENT</div><h2>Big plans?<br><span>Rent the tech.</span></h2><p>Trying something new, planning a trip, or just not ready to commit? Get the gadget for as long as you need it.</p><button class="button button-light" type="button" data-rent-link>Explore rentals <span aria-hidden="true">↗</span></button></div>
+      <div class="rental-art"><div class="rental-circle"></div><img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=760&q=85" alt="Smartphone available to rent" loading="lazy"><div class="rent-tag"><span>FLEXIBLE</span><strong>from ₹199<span>/day</span></strong></div><div class="floating-spark">✳</div></div>
+    </section>
+
+    <section class="why-section section-shell" id="why-techyy">
+      <div class="why-heading"><div class="eyebrow"><span class="eyebrow-line"></span> NOT JUST ANOTHER STORE</div><h2>Tech that fits <span>your life.</span></h2><p>Whether you’re all-in or just trying it out, we make the good stuff work for you.</p></div>
+      <div class="why-grid">
+        <article class="why-card"><div class="why-number">01</div><div class="why-icon">◈</div><h3>Good gear, no guesswork</h3><p>Every pick is tested, trusted, and chosen because it’s genuinely worth your time.</p><a href="#shop" aria-label="Browse curated gear">↗</a></article>
+        <article class="why-card why-card-accent"><div class="why-number">02</div><div class="why-icon">↻</div><h3>Keep it. Or give it back.</h3><p>Buy for keeps or rent for a bit. Your tech, your terms—no awkward commitment.</p><a href="#shop" data-rent-link aria-label="Browse rentals">↗</a></article>
+        <article class="why-card"><div class="why-number">03</div><div class="why-icon">♡</div><h3>People, not a ticket number</h3><p>Questions before, during, or after? We’re real people and we’ve got you.</p><a href="mailto:hello@techyy.store" aria-label="Email Techyy support">↗</a></article>
+      </div>
+    </section>
+
+    <section class="newsletter">
+      <div class="newsletter-mark">t<span>.</span></div><div><div class="eyebrow">THE GOOD TECH LETTER</div><h2>Good things in your inbox.</h2><p>New drops, rental tips, and the occasional very good deal.</p></div>
+      <form class="newsletter-form" id="newsletter-form"><label class="sr-only" for="newsletter-email">Your email address</label><input id="newsletter-email" type="email" placeholder="Your email address" required><button type="submit" aria-label="Subscribe to newsletter">→</button><small id="newsletter-status">No spam. Unsubscribe whenever.</small></form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-top"><a class="wordmark" href="#">techyy<span>.</span></a><p>A little more joy in your everyday tech.</p><div class="social-links"><a href="mailto:hello@techyy.store">Say hello ↗</a><a href="#shop">Instagram ↗</a></div></div>
+    <div class="footer-bottom"><span>© 2026 Techyy. Made for curious minds.</span><div><a href="#shop">Shop</a><a href="#why-techyy">Our story</a><a href="mailto:hello@techyy.store">Contact</a><button type="button" id="admin-link">Admin</button></div><span class="footer-made">A little less ordinary <span>✳</span></span></div>
+  </footer>
+
+  <div class="overlay hidden" id="overlay" aria-hidden="true">
+    <section class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+      <div class="drawer-header"><div><span class="drawer-eyebrow" id="drawer-eyebrow"></span><h2 id="drawer-title"></h2></div><button class="close-button" id="close-drawer" aria-label="Close dialog">×</button></div>
+      <div class="drawer-content" id="drawer-content"></div>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
